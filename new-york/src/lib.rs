@@ -188,7 +188,7 @@ impl GuestServiceInner for GuestServices {
             let lock = self.shared_public.lock().await;
             lock.clone()
         };
-        
+
         if maybe_pubkey.is_some() {
             let expected_shared_pubkey_bytes = maybe_pubkey.unwrap();
             // We need to register
@@ -219,12 +219,12 @@ impl GuestServiceInner for GuestServices {
                         vec![expected_shared_pubkey_bytes.into()],
                         vec![my_secret.clone()],
                     )?;
-                    let shared_secret_bytes = decrypted.as_bytes();
+                    let shared_secret_bytes: [u8; 32] = decrypted.try_into().unwrap();
                     // note: we don't need to explicitly check the obtained shared secret because thanks to diffie
                     // hellman constraints + TDX and replication guarantees (if the encrypted secret was not signed with the shared secret
                     // then the decoding would fail due to a diff in the p2p shared secret, if it was signed by the secret
                     // we know that it was a cluster-trusted TD so we know the message is indeed the encrypted shared secret).
-                    shared_secret = *shared_secret_bytes;
+                    shared_secret = shared_secret_bytes;
                     break;
                 } else {
                     println!("Didn't hear from cluster contract yet, waiting 5 seconds");
@@ -280,6 +280,7 @@ impl GuestServiceInner for GuestServices {
         println!("Encrypting secret.");
         let encrypted = self.crypto.encrypt_secret(
             NONCE,
+            self.shared_secret.lock().await.ok_or(anyhow!(""))?.into(),
             self.shared_secret.lock().await.ok_or(anyhow!(""))?.into(),
             pubkeys.iter().map(|p| (*p).into()).collect(),
         )?;

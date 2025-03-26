@@ -1,0 +1,11 @@
+[package]
+name = "diffie-hellman-secp"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+base64 = { workspace = true }
+dstack-core = { workspace = true }
+anyhow = { workspace = true }
+secp256k1 = { workspace = true }
+aes-gcm = { workspace = true }

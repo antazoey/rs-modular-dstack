@@ -4,7 +4,7 @@ use aes_gcm::{
 };
 use anyhow::anyhow;
 pub use dstack_core::InnerCryptoHelper;
-use x25519_dalek::StaticSecret;
+use secp256k1::{ecdh::SharedSecret, SecretKey};
 
 pub struct Crypto;
 
@@ -17,16 +17,15 @@ impl Crypto {
 /// Cryptographic helpers for diffie-hellman secret sharing.
 /// This should be moved to a default and either be derived or implemented in a wrapped object.
 impl InnerCryptoHelper for Crypto {
-    type Pubkey = x25519_dalek::PublicKey;
-    type Secret = x25519_dalek::StaticSecret;
+    type Pubkey = secp256k1::PublicKey;
+    type Secret = secp256k1::SecretKey;
     type EncryptedMessage = Vec<u8>;
 
     /// Generates a random keypair.
     fn get_keypair(&self) -> anyhow::Result<(Self::Pubkey, Self::Secret)> {
-        let secret = StaticSecret::random();
-        let pubkey = x25519_dalek::PublicKey::from(&secret);
+        let secret = secp256k1::SecretKey::new(&mut secp256k1::rand::thread_rng());
 
-        Ok((pubkey, secret))
+        Ok((secret.public_key(&secp256k1::Secp256k1::new()), secret))
     }
 
     /// Decrypts [`message: Self::EncryptedMessage`]:
@@ -43,13 +42,11 @@ impl InnerCryptoHelper for Crypto {
         pubkeys: Vec<Self::Pubkey>,
         secrets: Vec<Self::Secret>,
     ) -> anyhow::Result<Self::EncryptedMessage> {
-        let expected_shared_pubkey_bytes = pubkeys[0].as_bytes();
+        //let expected_shared_pubkey_bytes = pubkeys[0].;
         let chiper = {
-            let expected_shared_pubkey =
-                x25519_dalek::PublicKey::from(*expected_shared_pubkey_bytes);
-            let p2p_secret = secrets[0].diffie_hellman(&expected_shared_pubkey);
-
-            let key = aes_gcm::Key::<Aes256Gcm>::from_slice(p2p_secret.as_bytes());
+            //let expected_shared_pubkey = secp256k1::PublicKey::from(*expected_shared_pubkey_bytes);
+            let p2p_secret = SharedSecret::new(&pubkeys[0], &secrets[0]).secret_bytes();
+            let key = aes_gcm::Key::<Aes256Gcm>::from_slice(&p2p_secret);
             Aes256Gcm::new(key)
         };
         let decrypted = chiper
@@ -75,13 +72,9 @@ impl InnerCryptoHelper for Crypto {
         to_encrypt: Self::EncryptedMessage,
         pubkeys: Vec<Self::Pubkey>,
     ) -> anyhow::Result<Self::EncryptedMessage> {
-        let expected_shared_pubkey_bytes = pubkeys[0].as_bytes();
         let chiper = {
-            let expected_shared_pubkey =
-                x25519_dalek::PublicKey::from(*expected_shared_pubkey_bytes);
-            let p2p_secret = secret.diffie_hellman(&expected_shared_pubkey);
-
-            let key = aes_gcm::Key::<Aes256Gcm>::from_slice(p2p_secret.as_bytes());
+            let p2p_secret = SharedSecret::new(&pubkeys[0], &secret).secret_bytes();
+            let key = aes_gcm::Key::<Aes256Gcm>::from_slice(&p2p_secret);
             Aes256Gcm::new(key)
         };
         let encrypted = chiper

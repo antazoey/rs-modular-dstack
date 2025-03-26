@@ -28,6 +28,7 @@ pub trait InnerCryptoHelper {
         &self,
         nonce: N,
         secret: Self::Secret,
+        to_encrypt: Self::EncryptedMessage,
         pubkeys: Vec<Self::Pubkey>,
     ) -> anyhow::Result<Self::EncryptedMessage>;
 
@@ -37,5 +38,5 @@ pub trait InnerCryptoHelper {
         message: Self::EncryptedMessage,
         pubkeys: Vec<Self::Pubkey>,
         secrets: Vec<Self::Secret>,
-    ) -> anyhow::Result<Self::Secret>;
+    ) -> anyhow::Result<Self::EncryptedMessage>;
 }

@@ -1,39 +1,50 @@
 [workspace]
 resolver = "2"
 
-members = [ "crates/dcap-quotes", "crates/diffie-hellman", "crates/dummy-attestation",
-    "dstack-core", 
-    "examples/ping-host", 
-    "new-york", "contracts/stellar/simple-cluster", "crates/tdx-attestation",
-    "crates/attestation-driver/tdx-attest", "crates/attestation-driver/tdx-attest-sys", "crates/attestation-driver/cc-eventlog"
-#    "services/stellar/zephyr"
+members = [
+    "crates/dcap-quotes",
+    "crates/diffie-hellman",
+    "crates/diffie-hellman-secp",
+    "crates/dummy-attestation",
+    "dstack-core",
+    "examples/ping-host",
+    "new-york",
+    "contracts/stellar/simple-cluster",
+    "crates/tdx-attestation",
+    "crates/attestation-driver/tdx-attest",
+    "crates/attestation-driver/tdx-attest-sys",
+    "crates/attestation-driver/cc-eventlog",
+    #    "services/stellar/zephyr"
 ]
 
 exclude = ["services/stellar/zephyr"]
 
 [workspace.dependencies]
-dstack-core = {path="./dstack-core"}
-dcap-quotes = {path="./crates/dcap-quotes"}
-dummy-attestation = {path="./crates/dummy-attestation"}
-tdx-attestation = {path="./crates/tdx-attestation"}
-diffie-hellman = {path="./crates/diffie-hellman"}
+dstack-core = { path = "./dstack-core" }
+dcap-quotes = { path = "./crates/dcap-quotes" }
+dummy-attestation = { path = "./crates/dummy-attestation" }
+tdx-attestation = { path = "./crates/tdx-attestation" }
+diffie-hellman = { path = "./crates/diffie-hellman" }
 #tsm-client = {path="../rs-tsm-quote-generation"}
-tsm-client = {git="https://github.com/tpluslabs/rs-configfs-tsm-quoting"}
+tsm-client = { git = "https://github.com/tpluslabs/rs-configfs-tsm-quoting" }
 anyhow = "1.0.93"
 async-trait = "0.1.83"
-serde = {version = "1", features=["derive"]}
-reqwest = {version = "0.12.9", features=["json"]}
+serde = { version = "1", features = ["derive"] }
+reqwest = { version = "0.12.9", features = ["json"] }
 hex = "0.4"
 serde_json = "1"
 base64 = "0.22.1"
 sha2 = "0.10.8"
 aes-gcm = "0.10.3"
-x25519-dalek = {version="2.0.1", features=["getrandom", "static_secrets"]}
-cc-eventlog = {path="./crates/attestation-driver/cc-eventlog"}
-tdx-attest-sys = {path="./crates/attestation-driver/tdx-attest-sys"}
-tdx-attest = {path="./crates/attestation-driver/tdx-attest"}
+x25519-dalek = { version = "2.0.1", features = ["getrandom", "static_secrets"] }
+cc-eventlog = { path = "./crates/attestation-driver/cc-eventlog" }
+tdx-attest-sys = { path = "./crates/attestation-driver/tdx-attest-sys" }
+tdx-attest = { path = "./crates/attestation-driver/tdx-attest" }
 thiserror = "2.0.4"
 fs-err = "3.0.0"
-scale = { version = "3.6.12", package = "parity-scale-codec", features = ["derive"] }
+scale = { version = "3.6.12", package = "parity-scale-codec", features = [
+    "derive",
+] }
 serde-human-bytes = "0.1.0"
 insta = "1.41.1"
+secp256k1 = { version = "0.30.0", features = ["rand"] }
