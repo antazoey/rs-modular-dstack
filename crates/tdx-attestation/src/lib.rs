@@ -3,7 +3,7 @@
 use std::time::Duration;
 
 use async_trait::async_trait;
-use dstack_core::InnerAttestationHelper;
+pub use dstack_core::InnerAttestationHelper;
 use sha2::{Digest, Sha256};
 
 pub struct Attestation {}
