@@ -1,7 +1,5 @@
 //! Note, defaults to tsm only attestation through
 
-use std::time::Duration;
-
 use async_trait::async_trait;
 pub use dstack_core::InnerAttestationHelper;
 use sha2::{Digest, Sha256};
@@ -53,9 +51,12 @@ mod tsm_att {
             let quote = hex::decode(quote)?;
             
             // we're just relying on intel's API. We can change whenever we want.
-            let collateral = dcap_qvl::collateral::get_collateral_from_pcs(&quote, Duration::from_secs(15)).await?;
+            let client = dcap_qvl::collateral::CollateralClient::with_default_http(
+                dcap_qvl::collateral::INTEL_PCS_URL,
+            )?;
+            let collateral = client.fetch(&quote).await?;
             let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
-            let tcb = dcap_qvl::verify::verify(&quote, &collateral, now).map_err(|e| anyhow::anyhow!(e as u32))?;
+            let tcb = dcap_qvl::verify::verify(&quote, &collateral, now)?;
 
             Ok(tcb)
         }
@@ -91,9 +92,12 @@ mod full_driver {
             let quote = hex::decode(quote)?;
             
             // we're just relying on intel's API. We can change whenever we want.
-            let collateral = dcap_qvl::collateral::get_collateral_from_pcs(&quote, Duration::from_secs(15)).await?;
+            let client = dcap_qvl::collateral::CollateralClient::with_default_http(
+                dcap_qvl::collateral::INTEL_PCS_URL,
+            )?;
+            let collateral = client.fetch(&quote).await?;
             let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
-            let tcb = dcap_qvl::verify::verify(&quote, &collateral, now).map_err(|e| anyhow::anyhow!(e as u32))?;
+            let tcb = dcap_qvl::verify::verify(&quote, &collateral, now)?;
 
             Ok(tcb)
         }

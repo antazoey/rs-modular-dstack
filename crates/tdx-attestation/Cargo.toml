@@ -11,7 +11,7 @@ hex = {workspace=true}
 sha2 = {workspace=true}
 tdx-attest = {path="../attestation-driver/tdx-attest", optional=true}
 tsm-client = {workspace=true, optional=true}
-dcap-qvl = "0.1.6"
+dcap-qvl = "0.4"
 
 [features]
 default = ["tsm_only"]
